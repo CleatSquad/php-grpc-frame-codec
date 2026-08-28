@@ -1,6 +1,6 @@
-# franken-grpc-codec-php
+# php-franken-grpc-codec
 
-[![test](https://github.com/CleatSquad/franken-grpc-codec-php/actions/workflows/test.yml/badge.svg)](https://github.com/CleatSquad/franken-grpc-codec-php/actions/workflows/test.yml)
+[![Tests](https://github.com/CleatSquad/php-franken-grpc-codec/actions/workflows/tests.yml/badge.svg)](https://github.com/CleatSquad/php-franken-grpc-codec/actions/workflows/tests.yml)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 
 The 5-byte gRPC message frame your PHP backend must send back to
@@ -30,7 +30,7 @@ is written once, tested, and reused instead of copy-pasted per project.
 ## Install
 
 ```bash
-composer require cleatsquad/franken-grpc-codec-php
+composer require cleatsquad/php-franken-grpc-codec
 ```
 
 ## Usage

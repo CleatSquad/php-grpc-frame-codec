@@ -40,7 +40,14 @@ class FrankenGrpcFrameCodec
         }
 
         $lengthBytes = substr($frame, 1, 4);
-        ['length' => $length] = unpack('Nlength', $lengthBytes);
+        $unpacked = unpack('Nlength', $lengthBytes);
+        if ($unpacked === false) {
+            throw new \InvalidArgumentException('Could not read the 4-byte length field.');
+        }
+        $length = $unpacked['length'];
+        if (!is_int($length)) {
+            throw new \InvalidArgumentException('Could not read the 4-byte length field.');
+        }
 
         $payload = substr($frame, self::HEADER_LENGTH);
         if (strlen($payload) !== $length) {
