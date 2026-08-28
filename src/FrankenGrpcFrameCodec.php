@@ -15,7 +15,7 @@ namespace CleatSquad\FrankenGrpcCodec;
  * message, unframed. decode() exists for symmetry and for testing — most
  * backends only ever call encode().
  */
-class FrankenGrpcFrameCodec
+final class FrankenGrpcFrameCodec
 {
     private const FLAG_UNCOMPRESSED = "\x00";
     private const HEADER_LENGTH = 5;
