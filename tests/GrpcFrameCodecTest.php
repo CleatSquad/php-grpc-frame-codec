@@ -2,16 +2,16 @@
 
 declare(strict_types=1);
 
-namespace CleatSquad\FrankenGrpcCodec\Tests;
+namespace CleatSquad\GrpcFrameCodec\Tests;
 
-use CleatSquad\FrankenGrpcCodec\FrankenGrpcFrameCodec;
+use CleatSquad\GrpcFrameCodec\GrpcFrameCodec;
 use PHPUnit\Framework\TestCase;
 
-final class FrankenGrpcFrameCodecTest extends TestCase
+final class GrpcFrameCodecTest extends TestCase
 {
     public function testEncodeDecodeRoundTrip(): void
     {
-        $codec = new FrankenGrpcFrameCodec();
+        $codec = new GrpcFrameCodec();
         $payload = 'hello world';
 
         self::assertSame($payload, $codec->decode($codec->encode($payload)));
@@ -19,7 +19,7 @@ final class FrankenGrpcFrameCodecTest extends TestCase
 
     public function testEncodeProducesTheFiveByteHeader(): void
     {
-        $codec = new FrankenGrpcFrameCodec();
+        $codec = new GrpcFrameCodec();
         $frame = $codec->encode('ab');
 
         self::assertSame("\x00\x00\x00\x00\x02ab", $frame);
@@ -27,7 +27,7 @@ final class FrankenGrpcFrameCodecTest extends TestCase
 
     public function testDecodeEmptyPayload(): void
     {
-        $codec = new FrankenGrpcFrameCodec();
+        $codec = new GrpcFrameCodec();
 
         self::assertSame('', $codec->decode($codec->encode('')));
     }
@@ -37,7 +37,7 @@ final class FrankenGrpcFrameCodecTest extends TestCase
         $this->expectException(\InvalidArgumentException::class);
         $this->expectExceptionMessage('shorter than the 5-byte header');
 
-        (new FrankenGrpcFrameCodec())->decode("\x00\x00\x00");
+        (new GrpcFrameCodec())->decode("\x00\x00\x00");
     }
 
     public function testDecodeRejectsNonZeroCompressionFlag(): void
@@ -45,7 +45,7 @@ final class FrankenGrpcFrameCodecTest extends TestCase
         $this->expectException(\InvalidArgumentException::class);
         $this->expectExceptionMessage('Unsupported frame flag: 0x01');
 
-        (new FrankenGrpcFrameCodec())->decode("\x01\x00\x00\x00\x00");
+        (new GrpcFrameCodec())->decode("\x01\x00\x00\x00\x00");
     }
 
     public function testDecodeRejectsLengthMismatch(): void
@@ -53,6 +53,6 @@ final class FrankenGrpcFrameCodecTest extends TestCase
         $this->expectException(\InvalidArgumentException::class);
         $this->expectExceptionMessage('Declared payload length 5 does not match actual length 2');
 
-        (new FrankenGrpcFrameCodec())->decode("\x00\x00\x00\x00\x05ab");
+        (new GrpcFrameCodec())->decode("\x00\x00\x00\x00\x05ab");
     }
 }

@@ -13,7 +13,7 @@ Security fixes are applied to the latest stable release.
 Please do **not** open a public issue for a security vulnerability.
 
 Report it privately through
-[GitHub Security Advisories](https://github.com/CleatSquad/php-franken-grpc-codec/security/advisories/new),
+[GitHub Security Advisories](https://github.com/CleatSquad/php-grpc-frame-codec/security/advisories/new),
 or by email to <mimou78@gmail.com>.
 
 Include a description of the issue, the affected version, and a reproduction

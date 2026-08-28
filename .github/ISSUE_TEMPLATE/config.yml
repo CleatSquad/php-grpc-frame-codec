@@ -2,8 +2,8 @@
 blank_issues_enabled: false
 contact_links:
   - name: Documentation
-    url: https://github.com/CleatSquad/php-franken-grpc-codec#readme
+    url: https://github.com/CleatSquad/php-grpc-frame-codec#readme
     about: Check the README before opening an issue
   - name: Discussions
-    url: https://github.com/CleatSquad/php-franken-grpc-codec/discussions
+    url: https://github.com/CleatSquad/php-grpc-frame-codec/discussions
     about: Ask questions and share ideas in GitHub Discussions

@@ -5,8 +5,8 @@ Contributions are welcome — bug reports, documentation, and code alike.
 ## Getting started
 
 ```bash
-git clone https://github.com/CleatSquad/php-franken-grpc-codec.git
-cd php-franken-grpc-codec
+git clone https://github.com/CleatSquad/php-grpc-frame-codec.git
+cd php-grpc-frame-codec
 composer install
 ```
 

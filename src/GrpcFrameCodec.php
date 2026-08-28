@@ -2,12 +2,18 @@
 
 declare(strict_types=1);
 
-namespace CleatSquad\FrankenGrpcCodec;
+namespace CleatSquad\GrpcFrameCodec;
 
 /**
- * The 5-byte gRPC message frame franken-grpc (https://github.com/CleatSquad/franken-grpc)
- * expects on the PHP backend's HTTP response body:
+ * The 5-byte gRPC message frame the franken-grpc relay
+ * (https://github.com/CleatSquad/franken-grpc) expects on the PHP backend's
+ * HTTP response body:
  * 1 byte compression flag (must be 0) | 4 bytes big-endian payload length | N bytes payload.
+ *
+ * Pure byte manipulation — no dependency on any particular PHP runtime.
+ * Works under nginx+PHP-FPM, Apache, RoadRunner, Swoole, FrankenPHP, or
+ * plain php-fpm, as long as franken-grpc (or anything using the same
+ * wire contract) is the relay in front of it.
  *
  * Only the response direction needs this: franken-grpc strips the frame
  * before forwarding an incoming gRPC call to your backend as a plain HTTP
@@ -15,7 +21,7 @@ namespace CleatSquad\FrankenGrpcCodec;
  * message, unframed. decode() exists for symmetry and for testing — most
  * backends only ever call encode().
  */
-final class FrankenGrpcFrameCodec
+final class GrpcFrameCodec
 {
     private const FLAG_UNCOMPRESSED = "\x00";
     private const HEADER_LENGTH = 5;
