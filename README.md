@@ -56,13 +56,41 @@ $requestBytes = file_get_contents('php://input');
 // handle the call, encode the response message ...
 
 // Frame the response before sending it back:
-header('Content-Type: application/grpc+proto');
+header('Content-Type: ' . GrpcFrameCodec::CONTENT_TYPE);
 echo $codec->encode($responseBytes);
 ```
 
 `decode()` is provided for symmetry and for tests — most backends never
 need to call it, since franken-grpc already strips the frame on the
 request side.
+
+## Server-streaming responses
+
+A server-streaming RPC emits several frames back-to-back in the same HTTP
+response. If you're reading the body incrementally (chunked output,
+`fwrite`/flush per message, or a client consuming the response as a
+stream) you may not have a full frame yet on a given read. `readNextFrame()`
+handles that: it consumes one frame from the front of `$buffer` and
+advances it past what it read, returning `null` — without touching
+`$buffer` — when the frame isn't complete yet.
+
+```php
+use CleatSquad\GrpcFrameCodec\GrpcFrameCodec;
+
+$codec = new GrpcFrameCodec();
+$buffer = '';
+
+foreach ($chunksAsTheyArrive as $chunk) {
+    $buffer .= $chunk;
+
+    while (($payload = $codec->readNextFrame($buffer)) !== null) {
+        handle($payload); // one decoded message
+    }
+}
+```
+
+For a response you already have in full (the common unary case),
+`decode()` remains the simpler one-shot call.
 
 ## Examples by PHP runtime
 

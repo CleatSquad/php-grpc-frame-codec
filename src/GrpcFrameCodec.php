@@ -23,6 +23,9 @@ namespace CleatSquad\GrpcFrameCodec;
  */
 final class GrpcFrameCodec
 {
+    /** Content-Type header franken-grpc expects on the HTTP response body. */
+    public const CONTENT_TYPE = 'application/grpc+proto';
+
     private const FLAG_UNCOMPRESSED = "\x00";
     private const HEADER_LENGTH = 5;
 
@@ -40,20 +43,7 @@ final class GrpcFrameCodec
             throw new \InvalidArgumentException('Frame shorter than the 5-byte header.');
         }
 
-        $flag = $frame[0];
-        if ($flag !== self::FLAG_UNCOMPRESSED) {
-            throw new \InvalidArgumentException(sprintf('Unsupported frame flag: 0x%02x', ord($flag)));
-        }
-
-        $lengthBytes = substr($frame, 1, 4);
-        $unpacked = unpack('Nlength', $lengthBytes);
-        if ($unpacked === false) {
-            throw new \InvalidArgumentException('Could not read the 4-byte length field.');
-        }
-        $length = $unpacked['length'];
-        if (!is_int($length)) {
-            throw new \InvalidArgumentException('Could not read the 4-byte length field.');
-        }
+        $length = $this->readHeader($frame);
 
         $payload = substr($frame, self::HEADER_LENGTH);
         if (strlen($payload) !== $length) {
@@ -63,5 +53,55 @@ final class GrpcFrameCodec
         }
 
         return $payload;
+    }
+
+    /**
+     * Consumes one frame from the front of $buffer — for a server-streaming
+     * response, where several frames arrive back-to-back and a given read
+     * may land mid-frame. Advances $buffer past the consumed frame.
+     *
+     * Returns null when $buffer does not yet hold a complete frame (read
+     * more and call again with the same $buffer), never when it is simply
+     * empty — an empty buffer also returns null, meaning "nothing to read
+     * yet", not "malformed".
+     *
+     * @throws \InvalidArgumentException if a complete frame is present but malformed or compressed.
+     */
+    public function readNextFrame(string &$buffer): ?string
+    {
+        if (strlen($buffer) < self::HEADER_LENGTH) {
+            return null;
+        }
+
+        $length = $this->readHeader($buffer);
+
+        if (strlen($buffer) < self::HEADER_LENGTH + $length) {
+            return null;
+        }
+
+        $payload = substr($buffer, self::HEADER_LENGTH, $length);
+        $buffer = substr($buffer, self::HEADER_LENGTH + $length);
+
+        return $payload;
+    }
+
+    /** @throws \InvalidArgumentException if the 5-byte header itself is malformed or compressed. */
+    private function readHeader(string $frame): int
+    {
+        $flag = $frame[0];
+        if ($flag !== self::FLAG_UNCOMPRESSED) {
+            throw new \InvalidArgumentException(sprintf('Unsupported frame flag: 0x%02x', ord($flag)));
+        }
+
+        $unpacked = unpack('Nlength', substr($frame, 1, 4));
+        if ($unpacked === false) {
+            throw new \InvalidArgumentException('Could not read the 4-byte length field.');
+        }
+        $length = $unpacked['length'];
+        if (!is_int($length)) {
+            throw new \InvalidArgumentException('Could not read the 4-byte length field.');
+        }
+
+        return $length;
     }
 }
